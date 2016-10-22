@@ -49,8 +49,9 @@ class ZjGovNews(Spider):
 
         for k, v in task_dict.items():
             self.put((k, v))
-        Spider.start(self)
         self.url_set = set(json.load(open('zj_gov/news_url.json')))
+        Spider.start(self)
+
 
     def stop(self):
         Spider.stop(self)
