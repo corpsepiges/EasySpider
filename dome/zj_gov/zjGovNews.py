@@ -18,9 +18,10 @@ from EasySpider.Web import WebTask
 class ZjGovNews(Spider):
     def __init__(self, *args, **kwargs):
         Spider.__init__(self, *args, **kwargs)
-        self.url_set = set()
         self.url_set_lock = threading.Lock()
         self.now_page = -1
+        self.url_set = set(json.load(open('zj_gov/news_url.json')))
+        self.info(len(self.url_set))
 
     def start(self):
         task_dict = {u'8378': {'name': u'其他行政行为', 'num': 0}, u'8388': {'name': u'行政裁决', 'num': 0},
@@ -49,7 +50,7 @@ class ZjGovNews(Spider):
 
         for k, v in task_dict.items():
             self.put((k, v))
-        self.url_set = set(json.load(open('zj_gov/news_url.json')))
+
         Spider.start(self)
 
 
@@ -115,6 +116,7 @@ class ZjGovNews(Spider):
 
     @spider_func(func_type='main', next_func=('get_page', 'main'))
     def put_task(self, task):
+        time.sleep(0.1)
         task[1]['num'] = int(task[1]['num']) -1
         if task[1]['num'] < 0:
             return None,None
@@ -130,10 +132,11 @@ class ZjGovNews(Spider):
         assert isinstance(task, WebTask)
         try:
             r = re.search("location\.href='(/art.*?\.html)';", task.result.text).group(1)
-            if self.check_url(r):
+            if self.check_url("http://www.zj.gov.cn"+str(r)):
                 self.add_url(r)
                 return self.web.get('http://www.zj.gov.cn' + str(r), proxy=True), None
             else:
+                self.info("链接重复")
                 return
         except:
             pass
