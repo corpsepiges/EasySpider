@@ -5,6 +5,9 @@
 from ..Base.Task import Task
 import time
 
+
 class LogTask(Task):
-    def __init__(self, *args, **kwargs):
-        Task.__init__(self, *args, **kwargs)
+    def __init__(self, level, data, *args, **kwargs):
+        Task.__init__(self, data=data * args, **kwargs)
+        self.level = level
+        self.data = data
