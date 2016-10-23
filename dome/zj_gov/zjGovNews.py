@@ -22,6 +22,7 @@ class ZjGovNews(Spider):
         self.now_page = -1
         self.url_set = set(json.load(open('zj_gov/news_url.json')))
         self.info(len(self.url_set))
+        self.num = 0
 
     def start(self):
         task_dict = {u'8378': {'name': u'其他行政行为', 'num': 0}, u'8388': {'name': u'行政裁决', 'num': 0},
@@ -125,6 +126,7 @@ class ZjGovNews(Spider):
             '&cataid=' + str(task[0]) + '&orderid=-' + str(task[1]['num']) + '&catatype=2&position=prev',
             proxy=True
         )
+        self.num+=1
         return t, task
 
     @spider_func(next_func=('get_news', 'get_page'))
@@ -136,7 +138,7 @@ class ZjGovNews(Spider):
                 self.add_url(r)
                 return self.web.get('http://www.zj.gov.cn' + str(r), proxy=True), None
             else:
-                self.info("链接重复")
+                self.info("链接重复"+str(self.num))
                 return
         except:
             pass
