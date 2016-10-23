@@ -20,7 +20,7 @@ class ThreadManage(Base):
         self.list = []
         self.thread_class = thread_class
         self.state = False
-        self.queue = Queue.Queue()
+        self.queue = Queue.Queue(1000)
         self.init_list()
 
     def start(self):

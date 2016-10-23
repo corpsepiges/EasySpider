@@ -54,7 +54,6 @@ class ZjGovNews(Spider):
 
         Spider.start(self)
 
-
     def stop(self):
         Spider.stop(self)
         json.dump(list(self.url_set), open('zj_gov/news_url.json', 'w'))
@@ -117,19 +116,21 @@ class ZjGovNews(Spider):
 
     @spider_func(func_type='main', next_func=('get_page', 'main'))
     def put_task(self, task):
-        if self.web.web_thread_manage.queue.qsize()>300:
+        if self.web.web_thread_manage.queue.qsize() > 300:
             time.sleep(5)
         time.sleep(0.15)
-        task[1]['num'] = int(task[1]['num']) -1
+        task[1]['num'] = int(task[1]['num']) - 1
         if task[1]['num'] < 0:
-            return None,None
+            return None, None
         t = self.web.get(
             'http://www.zj.gov.cn/module/changepage/redirect.jsp?appid=1&webid=1'
             '&cataid=' + str(task[0]) + '&orderid=-' + str(task[1]['num']) + '&catatype=2&position=prev',
             proxy=True
         )
         self.info(self.web.web_thread_manage.queue.qsize())
-        self.num+=1
+        self.info(self.web.proxy_thread_manage.queue.qsize())
+        self.info(self.num)
+        self.num += 1
         return t, task
 
     @spider_func(next_func=('get_news', 'get_page'))
@@ -137,11 +138,11 @@ class ZjGovNews(Spider):
         assert isinstance(task, WebTask)
         try:
             r = re.search("location\.href='(/art.*?\.html)';", task.result.text).group(1)
-            if self.check_url("http://www.zj.gov.cn"+str(r)):
+            if self.check_url("http://www.zj.gov.cn" + str(r)):
                 self.add_url(r)
                 return self.web.get('http://www.zj.gov.cn' + str(r), proxy=True), None
             else:
-                self.info("链接重复"+str(self.num))
+                self.info("链接重复" + str(self.num))
                 return
         except:
             pass
@@ -194,6 +195,7 @@ class ZjGovNews(Spider):
 
 if __name__ == '__main__':
     from EasySpider import Core
+
     core = Core()
     news = core.add_spider(ZjGovNews)
     core.start()

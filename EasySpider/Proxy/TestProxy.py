@@ -61,11 +61,11 @@ class TestProxyManage(ThreadManage, BaseThread):
     """
 
     def __init__(self, content, num=200, thread_class=TestProxy, *args, **kwargs):
-
+        self.queue = Queue.Queue(300)
         self.proxy_list = []
         ThreadManage.__init__(self, content=content, num=num, thread_class=thread_class)
         BaseThread.__init__(self, content=content, *args, **kwargs)
-        self.queue = Queue.Queue(300)
+
 
     def init_list(self):
         """
@@ -93,7 +93,7 @@ class TestProxyManage(ThreadManage, BaseThread):
         while self.state:
             try:
                 proxy = random.sample(self.proxy_list, 1)[0]
-                self.queue.put(proxy)
+                self.queue.put(proxy,True,0.1)
             except Queue.Full:
                 pass
             except Exception as e:
