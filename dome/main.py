@@ -3,16 +3,13 @@
 # @Time    : 2016/10/17 11:37
 # @Author  : wplct
 from EasySpider import Core
-from weibo.weibo import weibo
-from zj_gov.zjGovNews import ZjGovNews
+from dome.ReloadTest.ReloadTest import ReloadTest
+
 
 core = Core()
-z = core.add_spider(ZjGovNews)
-# core.start()
-# z.put(0)
+z = core.add_spider(ReloadTest)
 
-# w = weibo(core.content)
-# core.add_spider(w)
 core.start()
-raw_input()
-core.stop()
+while True:
+    raw_input()
+    core.reload(ReloadTest)

@@ -9,14 +9,18 @@ class PrintLog(Log):
     def __init__(self, *args, **kwargs):
         Log.__init__(self, *args, **kwargs)
 
-    def _info(self, data):
-        print(data)
+    def _info(self, task):
+        self._print(task)
 
-    def _debug(self, data):
-        print(data)
+    def _debug(self, task):
+        self._print(task)
 
-    def _warn(self, data):
-        print(data)
+    def _warn(self, task):
+        self._print(task)
 
-    def _error(self, data):
-        print(data)
+    def _error(self, task):
+        self._print(task)
+
+    @staticmethod
+    def _print(task):
+        print task.time, task.initiator, task.data

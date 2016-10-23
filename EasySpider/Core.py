@@ -74,9 +74,12 @@ class Core(Base):
         热更新某个爬虫
         """
         assert issubclass(spider, Spider)
+        import sys
+
         for spider_thread in self.spider_list:
             if isinstance(spider_thread, spider):
-                reload(spider)
+                reload(sys.modules[spider.__module__])
+                spider = getattr(sys.modules[spider.__module__], spider.__name__)
                 state = spider_thread.state
                 spider_thread.stop()
                 self.spider_list.remove(spider_thread)
