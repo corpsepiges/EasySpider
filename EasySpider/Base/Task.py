@@ -8,7 +8,7 @@ import threading
 
 
 class Task:
-    def __init__(self,time=None, result_queue=None, block=False,data=None):
+    def __init__(self, result_queue=None, block=False,data=None):
         self.condition = None
         # todo 添加time
         if block:

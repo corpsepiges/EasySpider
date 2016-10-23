@@ -19,7 +19,7 @@ class ProxyManage(BaseThread):
         # 测试进程管理器
         self.test_manage = TestProxyManage(content=content)
         # 筛选代理进程，提供优质代理到队列里
-        self.quality_proxy_queue = Queue.Queue(300)
+        self.quality_proxy_queue = Queue.Queue()
         self.quality_thread = QualityProxy(content=content, quality_proxy_queue=self.quality_proxy_queue)
 
     def run(self):

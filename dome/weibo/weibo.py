@@ -106,7 +106,7 @@ def get_penson_from_html(html):
 class weibo(Spider):
     def __init__(self, content):
         Spider.__init__(self, content=content)
-        self.cookies_queue = Queue.Queue(300)
+        self.cookies_queue = Queue.Queue()
         self.cookies_lock = True
         self.id_set = set()
 

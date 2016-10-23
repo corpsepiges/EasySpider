@@ -18,7 +18,7 @@ class DB(RunQueueThread):
     DBTask = DBTask
     # sqlite:///D:/code/Python/spider-frame/data.db
     def __init__(self, content, url=None):
-        self.queue = Queue.Queue(1000)
+        self.queue = Queue.Queue()
         RunQueueThread.__init__(self, content=content, queue=self.queue)
         from EasySpider import Base
         self.Base = Base

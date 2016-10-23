@@ -61,7 +61,7 @@ class TestProxyManage(ThreadManage, BaseThread):
     """
 
     def __init__(self, content, num=200, thread_class=TestProxy, *args, **kwargs):
-        self.queue = Queue.Queue(300)
+        self.queue = Queue.Queue()
         self.proxy_list = []
         ThreadManage.__init__(self, content=content, num=num, thread_class=thread_class)
         BaseThread.__init__(self, content=content, *args, **kwargs)

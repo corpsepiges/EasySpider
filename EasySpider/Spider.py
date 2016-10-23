@@ -116,7 +116,7 @@ class SpiderFunc(object):
         if name in self.spider_self.spider_func_queue_dict:
             return self.spider_self.spider_func_queue_dict[name]
         else:
-            queue = Queue.Queue(200)
+            queue = Queue.Queue()
             self.spider_self.spider_func_queue_dict[name] = queue
             return queue
 
