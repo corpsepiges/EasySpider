@@ -117,7 +117,9 @@ class ZjGovNews(Spider):
 
     @spider_func(func_type='main', next_func=('get_page', 'main'))
     def put_task(self, task):
-        time.sleep(0.1)
+        if self.web.web_thread_manage.queue.qsize()>300:
+            time.sleep(5)
+        time.sleep(0.15)
         task[1]['num'] = int(task[1]['num']) -1
         if task[1]['num'] < 0:
             return None,None
@@ -126,6 +128,7 @@ class ZjGovNews(Spider):
             '&cataid=' + str(task[0]) + '&orderid=-' + str(task[1]['num']) + '&catatype=2&position=prev',
             proxy=True
         )
+        self.info(self.web.web_thread_manage.queue.qsize())
         self.num+=1
         return t, task
 
