@@ -155,8 +155,8 @@ class Spider(BaseThread):
         self.spider_func_queue_dict = {}
         self.queue = Queue.Queue()
         self.spider_func_queue_dict['main'] = self.queue
-
         self.init_spider_func()
+        self.state = False
 
     def init_spider_func(self):
         for k in dir(self):
@@ -172,12 +172,19 @@ class Spider(BaseThread):
         for thread in self.thread_list:
             thread.start()
         self.info("启动")
+        self.state = True
 
     def stop(self):
         for thread in self.thread_list:
             assert isinstance(thread, SpiderThread)
             thread.stop()
         self.info("停止")
+        self.state = False
 
     def put(self, data):
         self.queue.put(data)
+
+    def load(self, spider_func_queue_dict):
+        assert isinstance(spider_func_queue_dict, dict)
+        for k, v in spider_func_queue_dict.items():
+            self.spider_func_queue_dict[k] = v

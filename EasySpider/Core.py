@@ -23,7 +23,7 @@ class Core(Base):
     def __init__(self, log=PrintLog, web=Web, db=DB, proxy=ProxyManage):
         self.set_content(Content())
         Base.__init__(self, self.content)
-        self.manage_list = []
+        self.spider_list = []
         self.content.set_log(log)
         self.content.set_web(web, content=self.content)
         self.content.set_db(db, content=self.content)
@@ -38,19 +38,18 @@ class Core(Base):
             spider = spider(self.content)
         assert isinstance(spider, Spider)
         spider.set_content(self.content)
-        self.manage_list.append(spider)
+        self.spider_list.append(spider)
         return spider
 
     def stop(self, spider=None):
         """
-        停止某个或者所有管理器
+        停止某个或者所有爬虫
         :type spider Spider
         """
         if spider is None:
-            for s in self.manage_list:
+            for s in self.spider_list:
                 assert isinstance(s, Spider)
                 s.stop()
-            self.content.stop()
         else:
             assert isinstance(spider, Spider)
             spider.stop()
@@ -60,9 +59,29 @@ class Core(Base):
         启动某个或全部爬虫
         """
         if spider is None:
-            for s in self.manage_list:
+            for s in self.spider_list:
                 assert isinstance(s, Spider)
                 s.start()
         else:
             assert isinstance(spider, Spider)
             spider.start()
+
+    def stop_core(self):
+        self.content.stop()
+
+    def reload(self, spider):
+        """
+        热更新某个爬虫
+        """
+        assert issubclass(spider, Spider)
+        for spider_thread in self.spider_list:
+            if isinstance(spider_thread, spider):
+                reload(spider)
+                state = spider_thread.state
+                spider_thread.stop()
+                self.spider_list.remove(spider_thread)
+                new_spider_thread = self.add_spider(spider)
+                new_spider_thread.load(spider_thread.spider_func_queue_dict)
+                if state:
+                    new_spider_thread.start()
+
