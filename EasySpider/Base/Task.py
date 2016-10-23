@@ -64,5 +64,6 @@ class Task:
             self.condition.notify()
             self.condition.release()
         self.result = result
-        self.result_queue.put(self)
+        if self.result_queue is not None:
+            self.result_queue.put(self)
         self.retry_count += 1
