@@ -19,6 +19,7 @@ class ZjGovNews(Spider):
     def __init__(self, *args, **kwargs):
         Spider.__init__(self, *args, **kwargs)
         self.url_set_lock = threading.Lock()
+        self.num_lock = threading.Lock()
         self.now_page = -1
         self.url_set = set(json.load(open('zj_gov/news_url.json')))
         self.info(len(self.url_set))
@@ -69,6 +70,19 @@ class ZjGovNews(Spider):
         self.url_set.add(url)
         self.url_set_lock.release()
 
+    def add_num(self):
+        self.num_lock.acquire()
+        if self.num > 100:
+            time.sleep(5)
+        self.info(self.num)
+        self.num += 1
+        self.num_lock.release()
+
+    def delete_num(self):
+        self.num_lock.acquire()
+        self.num -= 1
+        self.num_lock.release()
+
     # @spider_func(func_type='main', next_func='get_art')
     # def main(self, page):
     #     """
@@ -116,9 +130,6 @@ class ZjGovNews(Spider):
 
     @spider_func(func_type='main', next_func=('get_page', 'main'))
     def put_task(self, task):
-        if self.web.web_thread_manage.queue.qsize() > 300:
-            time.sleep(5)
-        time.sleep(0.15)
         task[1]['num'] = int(task[1]['num']) - 1
         if task[1]['num'] < 0:
             return None, None
@@ -127,10 +138,7 @@ class ZjGovNews(Spider):
             '&cataid=' + str(task[0]) + '&orderid=-' + str(task[1]['num']) + '&catatype=2&position=prev',
             proxy=True
         )
-        self.info(self.web.web_thread_manage.queue.qsize())
-        self.info(self.web.proxy_thread_manage.queue.qsize())
-        self.info(self.num)
-        self.num += 1
+        self.add_num()
         return t, task
 
     @spider_func(next_func=('get_news', 'get_page'))
@@ -142,15 +150,22 @@ class ZjGovNews(Spider):
                 self.add_url(r)
                 return self.web.get('http://www.zj.gov.cn' + str(r), proxy=True), None
             else:
-                self.info("链接重复" + str(self.num))
+                self.info("链接重复")
+                self.delete_num()
                 return
         except:
             pass
         if task.result is not None and 'alert' in task.result.text:
-            pass
+            self.info("alert")
+            self.delete_num()
         else:
             if task.retry_count < 5:
                 return None, task
+            else:
+                self.info("重试5次")
+                task.kill_proxy()
+                print(task.result.text)
+                self.delete_num()
 
     @spider_func(next_func=('get_news', 'get_url'))
     def get_news(self, task):
@@ -178,10 +193,14 @@ class ZjGovNews(Spider):
                                          )
             news.source = dom.select('meta[name~=source]')[0]['content']
             news.attachment = ','.join([a['href'] for a in dom.select('#zoom a')])
+            self.info("完成")
+            self.delete_num()
             return self.db.save(news)
         except Exception as e:
             if news is not None:
                 if news.content is not None:
+                    self.info("完成")
+                    self.delete_num()
                     return self.db.save(news)
             if '404' in task.result.text:
                 task.kill_proxy()
@@ -190,6 +209,8 @@ class ZjGovNews(Spider):
             else:
                 news = News()
                 news.url = task.request.url
+                self.info("news重试5次")
+                self.delete_num()
                 return self.db.save(news)
 
 

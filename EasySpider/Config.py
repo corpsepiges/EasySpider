@@ -4,5 +4,5 @@
 # @Author  : wplct
 # 默认数据库地址
 # 笔记本默认地址 sqlite:///D:/code/Python/spider-frame/data.db
-db_url = 'sqlite:///D:/code/Python/spider-frame/data.db'
+db_url = 'sqlite:///D:/code/python/EasySpider/data.db'
 

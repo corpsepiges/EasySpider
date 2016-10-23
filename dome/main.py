@@ -13,6 +13,6 @@ z = core.add_spider(ZjGovNews)
 
 # w = weibo(core.content)
 # core.add_spider(w)
-# core.start()
+core.start()
 raw_input()
 core.stop()
